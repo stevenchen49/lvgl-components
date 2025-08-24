@@ -16,12 +16,18 @@ set(COMPONENT_IFACE_HEADERS
 # 接口层 - 源文件
 set(COMPONENT_IFACE_SOURCES
     iface/Button.cpp
+    iface/Checkbox.cpp
+    iface/Radio.cpp
+    iface/Switch.cpp
 )
 
 # 实现层 - LV8 源文件
 set(COMPONENT_LV8_SOURCES
     impls/lv8/ComponentLv8.cpp
     impls/lv8/ButtonLv8.cpp
+    impls/lv8/CheckboxLv8.cpp
+    impls/lv8/RadioLv8.cpp
+    impls/lv8/SwitchLv8.cpp
 )
 
 # 创建接口库

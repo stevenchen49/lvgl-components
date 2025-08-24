@@ -11,6 +11,7 @@ struct ColorConfig
 
     static constexpr uint32_t Black         = 0xFF000000; // #000000
     static constexpr uint32_t White         = 0xFFFFFFFF; // #FFFFFF
+    static constexpr uint32_t Transparent   = 0x00000000; // 完全透明
 
     static constexpr uint32_t Grey50        = 0xFF141414; // #141414    
     static constexpr uint32_t Grey100       = 0xFF242424; // #242424

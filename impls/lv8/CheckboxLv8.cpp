@@ -1,24 +1,19 @@
-#include "../../iface/Button.h"
-#include "../../iface/ButtonConfig.h"
+#include "../../iface/Checkbox.h"
+#include "../../iface/CheckboxConfig.h"
 #include <lvgl.h>
 
 namespace Gui {
 
 // ==================== 静态辅助方法实现 ====================
 
-lv_obj_t* Button::_lvCreateButton(lv_obj_t* parent)
+lv_obj_t* Checkbox::_lvCreateCheckbox(lv_obj_t* parent)
 {
-    lv_obj_t* obj = lv_obj_create(parent);
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
-    return obj;
+    return lv_checkbox_create(parent);
 }
 
-void Button::_lvSetConfig(lv_obj_t* obj, const ButtonConfig& config)
+void Checkbox::_lvSetConfig(lv_obj_t* obj, const CheckboxConfig& config)
 {
     if (!obj) return;
-
-    lv_obj_t* label = lv_label_create(obj);
-    lv_obj_center(label);
 
     // 设置正常状态样式
     if (config.normal.bgColor == ColorConfig::Transparent) {
@@ -27,18 +22,20 @@ void Button::_lvSetConfig(lv_obj_t* obj, const ButtonConfig& config)
         lv_obj_set_style_bg_color(obj, lv_color_hex(config.normal.bgColor), LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_STATE_DEFAULT);
     }
-    lv_obj_set_style_text_color(obj, lv_color_hex(config.normal.textColor), LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(obj, lv_color_hex(config.normal.borderColor), LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(obj, 1, LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(obj, 4, LV_STATE_DEFAULT);  // 圆角效果
     
-    // 设置按下状态样式
-    if (config.pressed.bgColor == ColorConfig::Transparent) {
-        lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_STATE_PRESSED);
+    // 设置选中状态样式
+    if (config.checked.bgColor == ColorConfig::Transparent) {
+        lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, LV_STATE_CHECKED);
     } else {
-        lv_obj_set_style_bg_color(obj, lv_color_hex(config.pressed.bgColor), LV_STATE_PRESSED);
-        lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_STATE_PRESSED);
+        lv_obj_set_style_bg_color(obj, lv_color_hex(config.checked.bgColor), LV_STATE_CHECKED);
+        lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_STATE_CHECKED);
     }
-    lv_obj_set_style_text_color(obj, lv_color_hex(config.pressed.textColor), LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(obj, lv_color_hex(config.pressed.borderColor), LV_STATE_PRESSED);
+    lv_obj_set_style_border_color(obj, lv_color_hex(config.checked.borderColor), LV_STATE_CHECKED);
+    lv_obj_set_style_border_width(obj, 1, LV_STATE_CHECKED);
+    lv_obj_set_style_radius(obj, 4, LV_STATE_CHECKED);  // 圆角效果
     
     // 设置禁用状态样式
     if (config.disabled.bgColor == ColorConfig::Transparent) {
@@ -47,21 +44,11 @@ void Button::_lvSetConfig(lv_obj_t* obj, const ButtonConfig& config)
         lv_obj_set_style_bg_color(obj, lv_color_hex(config.disabled.bgColor), LV_STATE_DISABLED);
         lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_STATE_DISABLED);
     }
-    lv_obj_set_style_text_color(obj, lv_color_hex(config.disabled.textColor), LV_STATE_DISABLED);
     lv_obj_set_style_border_color(obj, lv_color_hex(config.disabled.borderColor), LV_STATE_DISABLED);
+    lv_obj_set_style_border_width(obj, 1, LV_STATE_DISABLED);
+    lv_obj_set_style_radius(obj, 4, LV_STATE_DISABLED);  // 圆角效果
     
     // 设置状态属性
-    if (config.toggleMode) {
-        lv_obj_add_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-        if (config.checked) {
-            lv_obj_add_state(obj, LV_STATE_CHECKED);
-        } else {
-            lv_obj_remove_state(obj, LV_STATE_CHECKED);
-        }
-    } else {
-        lv_obj_remove_flag(obj, LV_OBJ_FLAG_CHECKABLE);
-    }
-    
     if (!config.clickable) {
         lv_obj_remove_flag(obj, LV_OBJ_FLAG_CLICKABLE);
     } else {
@@ -78,6 +65,13 @@ void Button::_lvSetConfig(lv_obj_t* obj, const ButtonConfig& config)
         lv_obj_add_state(obj, LV_STATE_DISABLED);
     } else {
         lv_obj_remove_state(obj, LV_STATE_DISABLED);
+    }
+    
+    // 设置初始选中状态
+    if (config.isChecked) {
+        lv_obj_add_state(obj, LV_STATE_CHECKED);
+    } else {
+        lv_obj_remove_state(obj, LV_STATE_CHECKED);
     }
 }
 
