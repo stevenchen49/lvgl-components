@@ -17,11 +17,11 @@ struct ButtonConfig
      */
     struct State {
         uint32_t normalBgColor = ColorConfig::Primary;      ///< 正常状态背景色
-        uint32_t pressedBgColor = ColorConfig::PrimaryDark; ///< 按下状态背景色
+        uint32_t pressedBgColor = ColorConfig::Grey300;     ///< 按下状态背景色
         uint32_t disabledBgColor = ColorConfig::Grey400;    ///< 禁用状态背景色
-        uint32_t normalTextColor = ColorConfig::TextPrimary; ///< 正常状态文本色
-        uint32_t pressedTextColor = ColorConfig::TextPrimary; ///< 按下状态文本色
-        uint32_t disabledTextColor = ColorConfig::TextDisabled; ///< 禁用状态文本色
+        uint32_t normalTextColor = ColorConfig::White;      ///< 正常状态文本色
+        uint32_t pressedTextColor = ColorConfig::White;     ///< 按下状态文本色
+        uint32_t disabledTextColor = ColorConfig::Grey500;  ///< 禁用状态文本色
         
         State() = default;
         State(uint32_t bg, uint32_t text) : normalBgColor(bg), normalTextColor(text) {}
@@ -33,9 +33,9 @@ struct ButtonConfig
     struct ButtonStyle {
         uint8_t cornerRadius = 8;                           ///< 圆角半径
         uint8_t borderWidth = 0;                            ///< 边框宽度
-        uint32_t borderColor = ColorConfig::BorderPrimary;  ///< 边框颜色
+        uint32_t borderColor = ColorConfig::Grey400;        ///< 边框颜色
         uint8_t shadowWidth = 2;                            ///< 阴影宽度
-        uint32_t shadowColor = ColorConfig::Shadow;         ///< 阴影颜色
+        uint32_t shadowColor = ColorConfig::Grey200;        ///< 阴影颜色
         uint8_t shadowOffsetX = 0;                          ///< 阴影X偏移
         uint8_t shadowOffsetY = 2;                          ///< 阴影Y偏移
         
@@ -186,11 +186,11 @@ struct ButtonConfig
      */
     static ButtonConfig defaultConfig() {
         ButtonConfig config;
-        config.setNormalColors(ColorConfig::Primary, ColorConfig::TextPrimary);
-        config.setPressedColors(ColorConfig::PrimaryDark, ColorConfig::TextPrimary);
-        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::TextDisabled);
+        config.setNormalColors(ColorConfig::Primary, ColorConfig::White);
+        config.setPressedColors(ColorConfig::Grey300, ColorConfig::White);
+        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::Grey500);
         config.setCornerRadius(8);
-        config.setShadow(2, ColorConfig::Shadow);
+        config.setShadow(2, ColorConfig::Grey200);
         config.clickable = true;
         config.focusable = true;
         config.visible = true;
@@ -203,11 +203,11 @@ struct ButtonConfig
      */
     static ButtonConfig primaryConfig(const std::string& text = "") {
         ButtonConfig config(text);
-        config.setNormalColors(ColorConfig::Primary, ColorConfig::TextPrimary);
-        config.setPressedColors(ColorConfig::PrimaryDark, ColorConfig::TextPrimary);
-        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::TextDisabled);
+        config.setNormalColors(ColorConfig::Primary, ColorConfig::White);
+        config.setPressedColors(ColorConfig::Grey300, ColorConfig::White);
+        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::Grey500);
         config.setCornerRadius(8);
-        config.setShadow(2, ColorConfig::Shadow);
+        config.setShadow(2, ColorConfig::Grey200);
         config.clickable = true;
         config.focusable = true;
         config.visible = true;
@@ -220,11 +220,11 @@ struct ButtonConfig
      */
     static ButtonConfig secondaryConfig(const std::string& text = "") {
         ButtonConfig config(text);
-        config.setNormalColors(ColorConfig::Secondary, ColorConfig::TextPrimary);
-        config.setPressedColors(ColorConfig::PrimaryDark, ColorConfig::TextPrimary);
-        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::TextDisabled);
+        config.setNormalColors(ColorConfig::Secondary, ColorConfig::White);
+        config.setPressedColors(ColorConfig::Grey300, ColorConfig::White);
+        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::Grey500);
         config.setCornerRadius(8);
-        config.setBorder(1, ColorConfig::BorderPrimary);
+        config.setBorder(1, ColorConfig::Grey400);
         config.clickable = true;
         config.focusable = true;
         config.visible = true;
@@ -237,11 +237,11 @@ struct ButtonConfig
      */
     static ButtonConfig successConfig(const std::string& text = "") {
         ButtonConfig config(text);
-        config.setNormalColors(ColorConfig::Success, ColorConfig::TextPrimary);
-        config.setPressedColors(ColorConfig::Grey700, ColorConfig::TextPrimary);
-        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::TextDisabled);
+        config.setNormalColors(ColorConfig::Info, ColorConfig::White);
+        config.setPressedColors(ColorConfig::Grey700, ColorConfig::White);
+        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::Grey500);
         config.setCornerRadius(8);
-        config.setShadow(2, ColorConfig::Shadow);
+        config.setShadow(2, ColorConfig::Grey200);
         config.clickable = true;
         config.focusable = true;
         config.visible = true;
@@ -254,11 +254,11 @@ struct ButtonConfig
      */
     static ButtonConfig dangerConfig(const std::string& text = "") {
         ButtonConfig config(text);
-        config.setNormalColors(ColorConfig::Error, ColorConfig::TextPrimary);
-        config.setPressedColors(ColorConfig::Grey700, ColorConfig::TextPrimary);
-        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::TextDisabled);
+        config.setNormalColors(ColorConfig::Danger, ColorConfig::White);
+        config.setPressedColors(ColorConfig::Grey700, ColorConfig::White);
+        config.setDisabledColors(ColorConfig::Grey400, ColorConfig::Grey500);
         config.setCornerRadius(8);
-        config.setShadow(2, ColorConfig::Shadow);
+        config.setShadow(2, ColorConfig::Grey200);
         config.clickable = true;
         config.focusable = true;
         config.visible = true;

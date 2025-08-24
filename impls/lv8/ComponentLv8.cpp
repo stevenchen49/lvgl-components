@@ -1,8 +1,67 @@
 #include "../iface/Component.h"
+#include "../iface/ComponentConfig.h"
 
 #include <lvgl.h>
 
 namespace Gui {
+
+// ==================== 枚举转换函数 ====================
+
+/**
+ * @brief 将 FlexFlow 转换为 LVGL 类型
+ */
+static lv_flex_flow_t convertFlexFlow(ComponentConfig::FlexFlow flow) {
+    switch (flow) {
+        case ComponentConfig::FlexFlow::Row:           return LV_FLEX_FLOW_ROW;
+        case ComponentConfig::FlexFlow::Column:        return LV_FLEX_FLOW_COLUMN;
+        case ComponentConfig::FlexFlow::RowReverse:    return LV_FLEX_FLOW_ROW_REVERSE;
+        case ComponentConfig::FlexFlow::ColumnReverse: return LV_FLEX_FLOW_COLUMN_REVERSE;
+        default:                                       return LV_FLEX_FLOW_ROW;
+    }
+}
+
+/**
+ * @brief 将 FlexAlign 转换为 LVGL 类型
+ */
+static lv_flex_align_t convertFlexAlign(ComponentConfig::FlexAlign align) {
+    switch (align) {
+        case ComponentConfig::FlexAlign::Start:        return LV_FLEX_ALIGN_START;
+        case ComponentConfig::FlexAlign::End:          return LV_FLEX_ALIGN_END;
+        case ComponentConfig::FlexAlign::Center:       return LV_FLEX_ALIGN_CENTER;
+        case ComponentConfig::FlexAlign::SpaceBetween: return LV_FLEX_ALIGN_SPACE_BETWEEN;
+        case ComponentConfig::FlexAlign::SpaceAround:  return LV_FLEX_ALIGN_SPACE_AROUND;
+        case ComponentConfig::FlexAlign::SpaceEvenly:  return LV_FLEX_ALIGN_SPACE_EVENLY;
+        default:                                       return LV_FLEX_ALIGN_START;
+    }
+}
+
+/**
+ * @brief 将 TextAlign 转换为 LVGL 类型
+ */
+static lv_text_align_t convertTextAlign(ComponentConfig::TextAlign align) {
+    switch (align) {
+        case ComponentConfig::TextAlign::Left:   return LV_TEXT_ALIGN_LEFT;
+        case ComponentConfig::TextAlign::Center: return LV_TEXT_ALIGN_CENTER;
+        case ComponentConfig::TextAlign::Right:  return LV_TEXT_ALIGN_RIGHT;
+        case ComponentConfig::TextAlign::Auto:   return LV_TEXT_ALIGN_AUTO;
+        default:                                 return LV_TEXT_ALIGN_LEFT;
+    }
+}
+
+/**
+ * @brief 将 AnimPath 转换为 LVGL 动画路径回调
+ */
+static lv_anim_path_cb_t convertAnimPath(ComponentConfig::AnimPath path) {
+    switch (path) {
+        case ComponentConfig::AnimPath::Linear:    return lv_anim_path_linear;
+        case ComponentConfig::AnimPath::EaseIn:    return lv_anim_path_ease_in;
+        case ComponentConfig::AnimPath::EaseOut:   return lv_anim_path_ease_out;
+        case ComponentConfig::AnimPath::EaseInOut: return lv_anim_path_ease_in_out;
+        case ComponentConfig::AnimPath::Overshoot: return lv_anim_path_overshoot;
+        case ComponentConfig::AnimPath::Bounce:    return lv_anim_path_bounce;
+        default:                                   return lv_anim_path_ease_out;
+    }
+}
 
 // ==================== 静态 LVGL 操作方法 ====================
 
@@ -11,133 +70,58 @@ lv_obj_t* Component::_lvCreateObject(lv_obj_t* parent)
     return lv_obj_create(parent);
 }
 
-lv_obj_t* Component::_lvSetPos(lv_obj_t* obj, const ComponentConfig::Pos& pos)
+void Component::_lvSetPos(lv_obj_t* obj, const ComponentConfig::Pos& pos)
 {
     if (obj) {
         lv_obj_set_pos(obj, pos.x, pos.y);
         if (pos.width > 0) lv_obj_set_width(obj, pos.width);
         if (pos.height > 0) lv_obj_set_height(obj, pos.height);
     }
-    return obj;
 }
 
-lv_obj_t* Component::_lvSetLayout(lv_obj_t* obj, const ComponentConfig::Layout& layout)
+void Component::_lvSetLayout(lv_obj_t* obj, const ComponentConfig::Layout& layout)
 {
     if (obj) {
-        lv_obj_set_flex_flow(obj, layout.flexFlow);
-        lv_obj_set_flex_align(obj, layout.mainPlace, layout.crossPlace, layout.trackPlace);
+        lv_obj_set_flex_flow(obj, convertFlexFlow(layout.flexFlow));
+        lv_obj_set_flex_align(obj, 
+            convertFlexAlign(layout.mainPlace), 
+            convertFlexAlign(layout.crossPlace), 
+            convertFlexAlign(layout.trackPlace));
         if (layout.rowGap > 0) lv_obj_set_style_pad_row(obj, layout.rowGap, LV_PART_MAIN);
         if (layout.columnGap > 0) lv_obj_set_style_pad_column(obj, layout.columnGap, LV_PART_MAIN);
     }
-    return obj;
 }
 
-lv_obj_t* Component::_lvSetStyle(lv_obj_t* obj, const ComponentConfig::Style& style)
+
+
+
+
+
+
+
+
+void Component::_lvSetVisable(lv_obj_t* obj, bool visible)
 {
-    if (obj) {
-        lv_obj_set_style_bg_color(obj, lv_color_hex(style.bgColor), LV_PART_MAIN);
-        lv_obj_set_style_text_color(obj, lv_color_hex(style.textColor), LV_PART_MAIN);
-        lv_obj_set_style_border_color(obj, lv_color_hex(style.borderColor), LV_PART_MAIN);
-        lv_obj_set_style_bg_opa(obj, style.bgOpacity, LV_PART_MAIN);
-        lv_obj_set_style_text_opa(obj, style.textOpacity, LV_PART_MAIN);
-        lv_obj_set_style_border_opa(obj, style.borderOpacity, LV_PART_MAIN);
-        lv_obj_set_style_border_width(obj, style.borderWidth, LV_PART_MAIN);
-        lv_obj_set_style_radius(obj, style.radius, LV_PART_MAIN);
-        lv_obj_set_style_pad_all(obj, style.padding, LV_PART_MAIN);
-        lv_obj_set_style_margin_all(obj, style.margin, LV_PART_MAIN);
+    if (!obj) return;
+    
+    if (visible) {
+        lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
     }
-    return obj;
 }
 
-lv_obj_t* Component::_lvSetText(lv_obj_t* obj, const ComponentConfig::Text& text)
+void Component::_lvSetEnabled(lv_obj_t* obj, bool enabled)
 {
-    if (obj && text.enabled) {
-        // 设置文本样式（所有对象都可以有文本样式）
-        if (text.font) lv_obj_set_style_text_font(obj, text.font, LV_PART_MAIN);
-        lv_obj_set_style_text_align(obj, text.align, LV_PART_MAIN);
-        
-        // 注意：文本内容设置需要根据具体对象类型来实现
-        // 这里只设置样式，具体文本内容由子类实现
+    if (!obj) return;
+    
+    if (enabled) {
+        lv_obj_clear_state(obj, LV_STATE_DISABLED);
+    } else {
+        lv_obj_add_state(obj, LV_STATE_DISABLED);
     }
-    return obj;
 }
 
-lv_obj_t* Component::_lvSetEvent(lv_obj_t* obj, const ComponentConfig::Event& event)
-{
-    // TODO: 实现事件设置
-    // 暂时注释掉，因为编译器无法识别 Event 结构体成员
-    /*
-    if (obj) {
-        if (event.onClick) {
-            lv_obj_add_event_cb(obj, _onClickCallback, LV_EVENT_CLICKED, nullptr);
-        }
-        if (event.onLongPress) {
-            lv_obj_add_event_cb(obj, _onLongPressCallback, LV_EVENT_LONG_PRESSED, nullptr);
-        }
-        if (event.onFocus) {
-            lv_obj_add_event_cb(obj, _onFocusCallback, LV_EVENT_FOCUSED, nullptr);
-        }
-        if (event.onBlur) {
-            lv_obj_add_event_cb(obj, _onBlurCallback, LV_EVENT_DEFOCUSED, nullptr);
-        }
-    }
-    */
-    return obj;
-}
 
-lv_obj_t* Component::_lvSetAnimation(lv_obj_t* obj, const ComponentConfig::Animation& animation)
-{
-    if (obj && animation.enabled) {
-        lv_obj_set_style_anim_time(obj, animation.duration, LV_PART_MAIN);
-        // 注意：lv_obj_set_style_anim_speed 可能在某些 LVGL 版本中不可用
-    }
-    return obj;
-}
-
-// ==================== 事件回调 ====================
-
-void Component::_onClickCallback(lv_event_t* e)
-{
-    // TODO: 实现点击回调
-    /*
-    Component* component = static_cast<Component*>(lv_event_get_user_data(e));
-    if (component && component->mConfig.event.onClick) {
-        component->mConfig.event.onClick(e);
-    }
-    */
-}
-
-void Component::_onLongPressCallback(lv_event_t* e)
-{
-    // TODO: 实现长按回调
-    /*
-    Component* component = static_cast<Component*>(lv_event_get_user_data(e));
-    if (component && component->mConfig.event.onLongPress) {
-        component->mConfig.event.onLongPress(e);
-    }
-    */
-}
-
-void Component::_onFocusCallback(lv_event_t* e)
-{
-    // TODO: 实现焦点回调
-    /*
-    Component* component = static_cast<Component*>(lv_event_get_user_data(e));
-    if (component && component->mConfig.event.onFocus) {
-        component->mConfig.event.onFocus(e);
-    }
-    */
-}
-
-void Component::_onBlurCallback(lv_event_t* e)
-{
-    // TODO: 实现失焦回调
-    /*
-    Component* component = static_cast<Component*>(lv_event_get_user_data(e));
-    if (component && component->mConfig.event.onBlur) {
-        component->mConfig.event.onBlur(e);
-    }
-    */
-}
 
 } // namespace Gui

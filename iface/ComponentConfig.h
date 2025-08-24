@@ -1,6 +1,5 @@
 #pragma once
 
-#include "lvgl.h"
 #include "ColorConfig.h"
 #include <functional>
 #include <string>
@@ -14,6 +13,49 @@ namespace Gui {
  */
 struct ComponentConfig
 {
+    /**
+     * @brief 弹性布局方向
+     */
+    enum class FlexFlow {
+        Row,            ///< 水平排列
+        Column,         ///< 垂直排列
+        RowReverse,     ///< 水平反向排列
+        ColumnReverse   ///< 垂直反向排列
+    };
+
+    /**
+     * @brief 弹性对齐方式
+     */
+    enum class FlexAlign {
+        Start,          ///< 起始对齐
+        End,            ///< 结束对齐
+        Center,         ///< 居中对齐
+        SpaceBetween,   ///< 两端对齐
+        SpaceAround,    ///< 环绕对齐
+        SpaceEvenly     ///< 均匀对齐
+    };
+
+    /**
+     * @brief 文本对齐方式
+     */
+    enum class TextAlign {
+        Left,           ///< 左对齐
+        Center,         ///< 居中对齐
+        Right,          ///< 右对齐
+        Auto            ///< 自动对齐
+    };
+
+    /**
+     * @brief 动画路径类型
+     */
+    enum class AnimPath {
+        Linear,         ///< 线性
+        EaseIn,         ///< 缓入
+        EaseOut,        ///< 缓出
+        EaseInOut,      ///< 缓入缓出
+        Overshoot,      ///< 过冲
+        Bounce          ///< 弹跳
+    };
     /**
      * @brief 位置配置
      */
@@ -32,24 +74,24 @@ struct ComponentConfig
      * @brief 布局配置
      */
     struct Layout {
-        lv_flex_flow_t flexFlow = LV_FLEX_FLOW_ROW;      ///< 弹性布局方向
-        lv_flex_align_t mainPlace = LV_FLEX_ALIGN_START; ///< 主轴对齐方式
-        lv_flex_align_t crossPlace = LV_FLEX_ALIGN_START;///< 交叉轴对齐方式
-        lv_flex_align_t trackPlace = LV_FLEX_ALIGN_START;///< 轨道对齐方式
-        uint8_t rowGap = 0;                              ///< 行间距
-        uint8_t columnGap = 0;                           ///< 列间距
+        FlexFlow flexFlow = FlexFlow::Row;          ///< 弹性布局方向
+        FlexAlign mainPlace = FlexAlign::Start;     ///< 主轴对齐方式
+        FlexAlign crossPlace = FlexAlign::Start;    ///< 交叉轴对齐方式
+        FlexAlign trackPlace = FlexAlign::Start;    ///< 轨道对齐方式
+        uint8_t rowGap = 0;                         ///< 行间距
+        uint8_t columnGap = 0;                      ///< 列间距
         
         Layout() = default;
-        Layout(lv_flex_flow_t flow) : flexFlow(flow) {}
+        Layout(FlexFlow flow) : flexFlow(flow) {}
     };
 
     /**
      * @brief 样式配置
      */
     struct Style {
-        uint32_t bgColor = ColorConfig::Background;      ///< 背景色
-        uint32_t textColor = ColorConfig::TextPrimary;   ///< 文本色
-        uint32_t borderColor = ColorConfig::BorderPrimary;///< 边框色
+        uint32_t bgColor = ColorConfig::BgBase;      ///< 背景色
+        uint32_t textColor = ColorConfig::White;     ///< 文本色
+        uint32_t borderColor = ColorConfig::Grey400; ///< 边框色
         uint8_t bgOpacity = 255;                         ///< 背景透明度
         uint8_t textOpacity = 255;                       ///< 文本透明度
         uint8_t borderOpacity = 255;                     ///< 边框透明度
@@ -66,27 +108,27 @@ struct ComponentConfig
      * @brief 文本配置
      */
     struct Text {
-        std::string content;                             ///< 文本内容
-        const lv_font_t* font = nullptr;                 ///< 字体
-        lv_text_align_t align = LV_TEXT_ALIGN_LEFT;      ///< 文本对齐
-        uint8_t lineHeight = 0;                          ///< 行高
-        bool autoSize = true;                            ///< 自动调整大小
-        bool enabled = false;                            ///< 是否启用文本功能
+        std::string content;                        ///< 文本内容
+        void* font = nullptr;                       ///< 字体指针（隔离LVGL类型）
+        TextAlign align = TextAlign::Left;          ///< 文本对齐
+        uint8_t lineHeight = 0;                     ///< 行高
+        bool autoSize = true;                       ///< 自动调整大小
+        bool enabled = false;                       ///< 是否启用文本功能
         
         Text() = default;
         Text(const std::string& text) : content(text), enabled(true) {}
-        Text(const std::string& text, const lv_font_t* f) : content(text), font(f), enabled(true) {}
+        Text(const std::string& text, void* f) : content(text), font(f), enabled(true) {}
     };
 
     /**
      * @brief 事件配置
      */
     struct Event {
-        std::function<void(lv_event_t*)> onClick;        ///< 点击事件
-        std::function<void(lv_event_t*)> onLongPress;    ///< 长按事件
-        std::function<void(lv_event_t*)> onFocus;        ///< 焦点事件
-        std::function<void(lv_event_t*)> onBlur;         ///< 失焦事件
-        std::function<void(lv_event_t*)> onValueChange;  ///< 值变化事件
+        std::function<void(void*)> onClick;        ///< 点击事件（参数为事件指针）
+        std::function<void(void*)> onLongPress;    ///< 长按事件
+        std::function<void(void*)> onFocus;        ///< 焦点事件
+        std::function<void(void*)> onBlur;         ///< 失焦事件
+        std::function<void(void*)> onValueChange;  ///< 值变化事件
         
         Event() = default;
     };
@@ -95,9 +137,9 @@ struct ComponentConfig
      * @brief 动画配置
      */
     struct Animation {
-        uint32_t duration = 300;                         ///< 动画持续时间(ms)
-        lv_anim_path_cb_t path = lv_anim_path_ease_out;  ///< 动画路径
-        bool enabled = true;                             ///< 是否启用动画
+        uint32_t duration = 300;                ///< 动画持续时间(ms)
+        AnimPath path = AnimPath::EaseOut;      ///< 动画路径
+        bool enabled = true;                    ///< 是否启用动画
         
         Animation() = default;
         Animation(uint32_t dur) : duration(dur) {}
@@ -180,7 +222,8 @@ struct ComponentConfig
     /**
      * @brief 设置点击事件
      */
-    ComponentConfig& setOnClick(std::function<void(lv_event_t*)> callback) {
+    template<typename Callback>
+    ComponentConfig& setOnClick(Callback callback) {
         event.onClick = callback;
         return *this;
     }

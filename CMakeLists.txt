@@ -15,7 +15,6 @@ set(COMPONENT_IFACE_HEADERS
 
 # 接口层 - 源文件
 set(COMPONENT_IFACE_SOURCES
-    iface/Component.cpp
     iface/Button.cpp
 )
 
