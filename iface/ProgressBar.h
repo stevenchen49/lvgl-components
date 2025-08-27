@@ -42,9 +42,8 @@ public:
     }
 
     lv_obj_t* _build(lv_obj_t* parent) override {
-        mLvObj = _lvCreateProgressBar(parent);
+        mLvObj = _lvCreateProgressBar(parent, mValue);
         if (mLvObj) {
-            _lvSetProgressBarValue(mLvObj, mValue);
             _applyAllModifiers(mLvObj);
         }
         return mLvObj;

@@ -52,11 +52,8 @@ public:
     }
 
     lv_obj_t* _build(lv_obj_t* parent) override {
-        mLvObj = _lvCreateTextArea(parent);
+        mLvObj = _lvCreateTextArea(parent, mPlaceholder.c_str());
         if (mLvObj) {
-            if (!mPlaceholder.empty()) {
-                _lvSetTextAreaPlaceholder(mLvObj, mPlaceholder);
-            }
             _applyAllModifiers(mLvObj);
         }
         return mLvObj;

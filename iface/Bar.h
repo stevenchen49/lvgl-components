@@ -42,9 +42,8 @@ public:
     }
 
     lv_obj_t* _build(lv_obj_t* parent) override {
-        mLvObj = _lvCreateBar(parent);
+        mLvObj = _lvCreateBar(parent, mValue);
         if (mLvObj) {
-            _lvSetBarValue(mLvObj, mValue);
             _applyAllModifiers(mLvObj);
         }
         return mLvObj;

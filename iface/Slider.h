@@ -26,7 +26,7 @@ public:
     Slider& value(int val) & {
         mValue = val; // Store it for build time
         custom([val](lv_obj_t* obj){
-            _lvSetSliderValue(obj, val); // set value
+            _lvSetSliderValue(obj, val, true); // with animation
         });
         return *this;
     }
@@ -46,7 +46,7 @@ public:
     lv_obj_t* _build(lv_obj_t* parent) override {
         mLvObj = _lvCreateSlider(parent);
         if (mLvObj) {
-            _lvSetSliderValue(mLvObj, mValue); // set initial value
+            _lvSetSliderValue(mLvObj, mValue, false); // no animation at creation
             _applyAllModifiers(mLvObj);
             if (mOnValueChanged) {
                 _lvSetSliderOnValueChanged(mLvObj, mOnValueChanged);

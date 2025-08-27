@@ -23,9 +23,8 @@ public:
 protected:
     lv_obj_t* _build(lv_obj_t* parent) override
     {
-        mLvObj = _lvCreateButton(parent);
+        mLvObj = _lvCreateButton(parent, mText.c_str());
         if (mLvObj) {
-            _lvSetText(mLvObj, mText);
             _applyAllModifiers(mLvObj);
             if (mOnClick) {
                 // The actual event registration will be handled by the backend implementation
