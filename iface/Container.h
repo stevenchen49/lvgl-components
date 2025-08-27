@@ -38,13 +38,13 @@ public:
         return std::move(static_cast<VStack&>(*this).spacing(space));
     }
 
-    VStack& alignment(HorizontalAlignment align) & {
+    VStack& alignment(Layout::Horizontal align) & {
         custom([align](lv_obj_t* obj){
             _lvSetFlexAlignment(obj, align);
         });
         return *this;
     }
-    VStack&& alignment(HorizontalAlignment align) && {
+    VStack&& alignment(Layout::Horizontal align) && {
         return std::move(static_cast<VStack&>(*this).alignment(align));
     }
 
@@ -98,13 +98,13 @@ public:
         return std::move(static_cast<HStack&>(*this).spacing(space));
     }
 
-    HStack& alignment(VerticalAlignment align) & {
+    HStack& alignment(Layout::Vertical align) & {
         custom([align](lv_obj_t* obj){
             _lvSetFlexAlignment(obj, align);
         });
         return *this;
     }
-    HStack&& alignment(VerticalAlignment align) && {
+    HStack&& alignment(Layout::Vertical align) && {
         return std::move(static_cast<HStack&>(*this).alignment(align));
     }
 
