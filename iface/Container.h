@@ -28,6 +28,26 @@ public:
         return *this;
     }
 
+    VStack& spacing(int space) & {
+        custom([space](lv_obj_t* obj){
+            _lvSetStyleGap(obj, space, LV_FLEX_FLOW_COLUMN);
+        });
+        return *this;
+    }
+    VStack&& spacing(int space) && {
+        return std::move(static_cast<VStack&>(*this).spacing(space));
+    }
+
+    VStack& alignment(HorizontalAlignment align) & {
+        custom([align](lv_obj_t* obj){
+            _lvSetFlexAlignment(obj, align);
+        });
+        return *this;
+    }
+    VStack&& alignment(HorizontalAlignment align) && {
+        return std::move(static_cast<VStack&>(*this).alignment(align));
+    }
+
     lv_obj_t* _build(lv_obj_t* parent) override
     {
         mLvObj = _lvCreateVStack(parent);
@@ -68,9 +88,70 @@ public:
         return *this;
     }
 
+    HStack& spacing(int space) & {
+        custom([space](lv_obj_t* obj){
+            _lvSetStyleGap(obj, space, LV_FLEX_FLOW_ROW);
+        });
+        return *this;
+    }
+    HStack&& spacing(int space) && {
+        return std::move(static_cast<HStack&>(*this).spacing(space));
+    }
+
+    HStack& alignment(VerticalAlignment align) & {
+        custom([align](lv_obj_t* obj){
+            _lvSetFlexAlignment(obj, align);
+        });
+        return *this;
+    }
+    HStack&& alignment(VerticalAlignment align) && {
+        return std::move(static_cast<HStack&>(*this).alignment(align));
+    }
+
     lv_obj_t* _build(lv_obj_t* parent) override
     {
         mLvObj = _lvCreateHStack(parent);
+        if (mLvObj) {
+            _applyAllModifiers(mLvObj);
+            for (auto& child : mChildren) {
+                child->_build(mLvObj);
+            }
+        }
+        return mLvObj;
+    }
+
+private:
+    std::vector<std::unique_ptr<View>> mChildren;
+};
+
+class ZStack : public View, public Modifier<ZStack>
+{
+public:
+    ZStack(const std::string& name = "") : View(name) {}
+
+    template <typename... Children>
+    ZStack(Children&&... children)
+    {
+        (addChild(std::forward<Children>(children)), ...);
+    }
+
+    template <typename Child>
+    ZStack& addChild(Child&& child)
+    {
+        mChildren.emplace_back(std::make_unique<std::decay_t<Child>>(std::forward<Child>(child)));
+        return *this;
+    }
+
+    ZStack& add(std::unique_ptr<View> view)
+    {
+        mChildren.push_back(std::move(view));
+        return *this;
+    }
+
+public:
+    lv_obj_t* _build(lv_obj_t* parent) override
+    {
+        mLvObj = _lvCreateZStack(parent);
         if (mLvObj) {
             _applyAllModifiers(mLvObj);
             for (auto& child : mChildren) {
