@@ -1,46 +1,42 @@
 #pragma once
 
-#include "Component.h"
-#include "ButtonConfig.h"
+#include "View.h"
+#include "Modifier.h"
+#include <string>
+#include <functional>
 
 namespace Gui {
 
-/**
- * @brief Button component
- */
-class Button : public Component
+class Button : public View, public Modifier<Button>
 {
 public:
-    Button();
-    virtual ~Button();
+    using OnClickCallback = std::function<void()>;
 
-    /**
-     * @brief Create button object
-     * @param parent Parent LVGL object
-     * @return Created LVGL button object
-     */
-    lv_obj_t* createObject(lv_obj_t* parent) override;
+    Button(const std::string& text) : View(""), mText(text) {}
 
-    Button& genObjectSync(lv_obj_t* parent = nullptr) override
+    Button& onClick(OnClickCallback callback)
     {
-        Component::genObjectSync(parent);
-        return *this;
-    }
-
-    Button& setConfig(const ButtonConfig& config)
-    {
-        _lvSetConfig(mLvObj, config);
+        mOnClick = std::move(callback);
         return *this;
     }
 
 protected:
-    // ==================== 静态辅助方法 ====================
-    static lv_obj_t* _lvCreateButton(lv_obj_t* parent);
-    static void _lvSetConfig(lv_obj_t* obj, const ButtonConfig& config);
+    lv_obj_t* _build(lv_obj_t* parent) override
+    {
+        mLvObj = _lvCreateButton(parent, mText.c_str());
+        if (mLvObj) {
+            _applyAllModifiers(mLvObj);
+            if (mOnClick) {
+                // The actual event registration will be handled by the backend implementation
+                _lvSetOnClick(mLvObj, mOnClick);
+            }
+        }
+        return mLvObj;
+    }
 
 private:
-    // ==================== 私有成员变量 ====================
-    std::string mButtonText;        ///< Button text
+    std::string mText;
+    OnClickCallback mOnClick;
 };
 
 } // namespace Gui
