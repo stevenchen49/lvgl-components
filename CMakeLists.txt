@@ -1,7 +1,7 @@
 # GUI 组件系统 CMakeLists.txt
 
 # 设置 C++ 标准
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 接口层现在只包含头文件，所以我们创建一个 INTERFACE 库
@@ -9,10 +9,13 @@ add_library(component_iface INTERFACE)
 target_include_directories(component_iface INTERFACE 
     ${CMAKE_CURRENT_SOURCE_DIR}/iface
     ${CMAKE_CURRENT_SOURCE_DIR}/../lvgl
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
-# 实现层 - LV8 源文件
+target_sources(component_iface INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/iface/gui/ViewBase.cpp
+)
+
+# 实现层 - LV8 源文件和接口层实现
 set(COMPONENT_LV8_SOURCES
     impls/lv8/AdaptorLv8.cpp
 )
@@ -22,7 +25,6 @@ add_library(component_lv8 STATIC ${COMPONENT_LV8_SOURCES})
 target_include_directories(component_lv8 PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/iface
     ${CMAKE_CURRENT_SOURCE_DIR}/../lvgl
-    ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
 # 链接依赖
@@ -35,8 +37,6 @@ target_compile_definitions(component_lv8 PRIVATE LV_CONF_INCLUDE_SIMPLE)
 # 导出库
 set_target_properties(component_iface PROPERTIES
     EXPORT_NAME "ComponentInterface"
-    VERSION 1.0.0
-    SOVERSION 1
 )
 
 set_target_properties(component_lv8 PROPERTIES

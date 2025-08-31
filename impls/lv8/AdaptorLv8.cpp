@@ -1,10 +1,61 @@
-#include "Adaptor.h"
+#include "../../iface/gui/Adaptor.h"
+#include "../../iface/gui/style/Color.h"
 
-namespace Gui {
+#include <lvgl.h>
+#include <unistd.h>
+
+namespace gui {
+namespace adaptor {
+
+int _lvPreinit()
+{ 
+    // do nothing
+    return 0;
+}
+
+int _lvInit()
+{
+    lv_init();
+    return 0;
+}
+
+void _lvDeinit()
+{
+    return;
+}
+
+void _lvLoop()
+{
+    while (true) {
+        lv_timer_handler();
+        usleep(5000);
+    }
+    return;
+}
+
+void _lvAsyncCall(std::function<void()> task)
+{
+    auto *taskPtr = new std::function<void()>(std::move(task));
+
+    lv_async_call([](void* user_data) {
+        auto* actualTask = static_cast<std::function<void()>*>(user_data);
+        try {
+            (*actualTask)();
+        } catch (...) {
+            // TODO: LOG ERROR
+        }
+        delete actualTask;
+    }, taskPtr);
+}
 
 lv_obj_t* _lvCreateObj(lv_obj_t* parent)
 {
     return lv_obj_create(parent);
+}
+
+void _lvDestroyObj(lv_obj_t* obj)
+{
+    lv_obj_del(obj);
 }
 
 // Generic helper to create a container with flex layout
@@ -26,36 +77,42 @@ void _lvSetStyleGap(lv_obj_t* obj, int gap, lv_flex_flow_t flow)
     }
 }
 
-void _lvSetFlexAlignment(lv_obj_t* obj, Layout::Horizontal align)
+void _lvSetFlexAlignment(lv_obj_t* obj, gui::style::Layout::Horizontal align)
 {
     lv_flex_align_t lv_align;
     switch (align) {
-        case Layout::Horizontal::Leading:
+        case gui::style::Layout::Horizontal::Leading: {
             lv_align = LV_FLEX_ALIGN_START;
-            break;
-        case Layout::Horizontal::Center:
+        }
+        break;
+        case gui::style::Layout::Horizontal::Center: {
             lv_align = LV_FLEX_ALIGN_CENTER;
-            break;
-        case Layout::Horizontal::Trailing:
+        }
+        break;
+        case gui::style::Layout::Horizontal::Trailing: {
             lv_align = LV_FLEX_ALIGN_END;
-            break;
+        }
+        break;
     }
     lv_obj_set_style_flex_cross_place(obj, lv_align, LV_PART_MAIN);
 }
 
-void _lvSetFlexAlignment(lv_obj_t* obj, Layout::Vertical align)
+void _lvSetFlexAlignment(lv_obj_t* obj, gui::style::Layout::Vertical align)
 {
     lv_flex_align_t lv_align;
     switch (align) {
-        case Layout::Vertical::Top:
+        case gui::style::Layout::Vertical::Top: {
             lv_align = LV_FLEX_ALIGN_START;
-            break;
-        case Layout::Vertical::Center:
+        }
+        break;
+        case gui::style::Layout::Vertical::Center: {
             lv_align = LV_FLEX_ALIGN_CENTER;
-            break;
-        case Layout::Vertical::Bottom:
+        }
+        break;
+        case gui::style::Layout::Vertical::Bottom: {
             lv_align = LV_FLEX_ALIGN_END;
-            break;
+        }
+        break;
     }
     lv_obj_set_style_flex_cross_place(obj, lv_align, LV_PART_MAIN);
 }
@@ -87,15 +144,25 @@ void _lvSetText(lv_obj_t* obj, const char* text)
     lv_label_set_text(obj, text);
 }
 
-lv_obj_t* _lvCreateButton(lv_obj_t* parent, const char* text)
+lv_obj_t* _lvCreateButton(lv_obj_t* parent)
 {
-    lv_obj_t* btn = lv_btn_create(parent);
-    if (text) {
-        lv_obj_t* label = lv_label_create(btn);
+    return lv_btn_create(parent);
+}
+
+void _lvSetButtonText(lv_obj_t* obj, const char* text)
+{
+    if (!text) return;
+    
+    // Check if button already has a label
+    lv_obj_t* label = lv_obj_get_child(obj, 0);
+    if (label && lv_obj_check_type(label, &lv_label_class)) {
+        lv_label_set_text(label, text);
+    } else {
+        // Create new label
+        label = lv_label_create(obj);
         lv_label_set_text(label, text);
         lv_obj_center(label);
     }
-    return btn;
 }
 
 // Event handler for button clicks
@@ -121,9 +188,20 @@ void _lvSetOnClick(lv_obj_t* obj, std::function<void()> callback)
     }, LV_EVENT_DELETE, callback_ptr);
 }
 
-void _lvSetSize(lv_obj_t* obj, const Gui::Size& size)
+void _lvSetSize(lv_obj_t* obj, const gui::style::Size& size)
 {
     lv_obj_set_size(obj, size.width, size.height);
+}
+
+void _lvSetTextColor(lv_obj_t* obj, lv_color_t color)
+{
+    lv_obj_set_style_text_color(obj, color, LV_PART_MAIN);
+}
+
+void _lvSetTextColor(lv_obj_t* obj, const gui::style::Color& color)
+{
+    lv_color_t lv_color = lv_color_hex(color.value);
+    lv_obj_set_style_text_color(obj, lv_color, LV_PART_MAIN);
 }
 
 void _lvSetWidth(lv_obj_t* obj, int width)
@@ -139,6 +217,12 @@ void _lvSetHeight(lv_obj_t* obj, int height)
 void _lvSetBgColor(lv_obj_t* obj, lv_color_t color)
 {
     lv_obj_set_style_bg_color(obj, color, LV_PART_MAIN);
+}
+
+void _lvSetBgColor(lv_obj_t* obj, const gui::style::Color& color)
+{
+    lv_color_t lv_color = lv_color_hex(color.value);
+    lv_obj_set_style_bg_color(obj, lv_color, LV_PART_MAIN);
 }
 
 // Progress Bar implementations
@@ -444,5 +528,5 @@ void _lvSetImageSrc(lv_obj_t* obj, const lv_img_dsc_t* src)
     lv_img_set_src(obj, src);
 }
 
-
-} // namespace Gui
+} // namespace adaptor
+} // namespace gui
