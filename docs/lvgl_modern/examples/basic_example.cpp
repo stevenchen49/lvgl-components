@@ -22,58 +22,60 @@ int main() {
     
     std::cout << "\n--- Creating Declarative UI ---" << std::endl;
     
-    // 声明式UI构建
-    VBox {
-        Label { "LVGL Modern Demo" }
-            .fontSize(24)
-            .color(Color::Blue),
-            
-        Label { "Counter: 0" }
-            .withProxy(counterLabel)
-            .bindText(counter.map([](int n) { 
-                return "Counter: " + std::to_string(n); 
-            })),
-            
-        HBox {
-            Button { "Increment" }
-                .withProxy(incrementBtn)
-                .onClick([&counter]() {
-                    counter = counter.get() + 1;
-                    std::cout << "[Event] Counter incremented to: " << counter.get() << std::endl;
-                }),
-                
-            Button { "Decrement" }
-                .withProxy(decrementBtn)
-                .onClick([&counter]() {
-                    counter = counter.get() - 1;
-                    std::cout << "[Event] Counter decremented to: " << counter.get() << std::endl;
-                })
-                .bindEnabled(isEnabled)
-        }.spacing(10),
-        
-        Slider { 0, 100, 50 }
-            .withProxy(valueSlider)
-            .onValueChanged([&](int value) {
-                std::cout << "[Event] Slider value changed to: " << value << std::endl;
-                // 当滑块值小于25时禁用减少按钮
-                isEnabled = value >= 25;
-            }),
-            
-        HBox {
-            Button { "Reset" }
-                .onClick([&counter, &valueSlider]() {
-                    counter = 0;
-                    valueSlider->simulateValueChange(50);
-                    std::cout << "[Event] Reset clicked" << std::endl;
-                }),
-                
-            Button { "Exit" }
-                .onClick([]() {
-                    std::cout << "[Event] Exit clicked" << std::endl;
-                })
-        }.spacing(10).center()
-        
-    }.padding(20).fitTo(screen());
+    // 声明式UI构建 - 使用移动语义
+    auto layout = VBox();
+    layout.add(Label("LVGL Modern Demo")
+        .fontSize(24)
+        .color(Color::Blue));
+    
+    layout.add(Label("Counter: 0")
+        .withProxy(counterLabel)
+        .bindText(counter.map([](int n) { 
+            return "Counter: " + std::to_string(n); 
+        })));
+    
+    auto hbox1 = HBox();
+    hbox1.add(Button("Increment")
+        .withProxy(incrementBtn)
+        .onClick([&counter]() {
+            counter = counter.get() + 1;
+            std::cout << "[Event] Counter incremented to: " << counter.get() << std::endl;
+        }));
+    
+    hbox1.add(Button("Decrement")
+        .withProxy(decrementBtn)
+        .onClick([&counter]() {
+            counter = counter.get() - 1;
+            std::cout << "[Event] Counter decremented to: " << counter.get() << std::endl;
+        })
+        .bindEnabled(isEnabled));
+    
+    layout.add(std::move(hbox1).spacing(10));
+    
+    layout.add(Slider(0, 100, 50)
+        .withProxy(valueSlider)
+        .onValueChanged([&](int value) {
+            std::cout << "[Event] Slider value changed to: " << value << std::endl;
+            // 当滑块值小于25时禁用减少按钮
+            isEnabled = value >= 25;
+        }));
+    
+    auto hbox2 = HBox();
+    hbox2.add(Button("Reset")
+        .onClick([&counter, &valueSlider]() {
+            counter = 0;
+            valueSlider->simulateValueChange(50);
+            std::cout << "[Event] Reset clicked" << std::endl;
+        }));
+    
+    hbox2.add(Button("Exit")
+        .onClick([]() {
+            std::cout << "[Event] Exit clicked" << std::endl;
+        }));
+    
+    layout.add(std::move(hbox2).spacing(10).center());
+    
+    std::move(layout).padding(20).fitTo(screen());
     
     std::cout << "\n--- UI Created Successfully ---" << std::endl;
     

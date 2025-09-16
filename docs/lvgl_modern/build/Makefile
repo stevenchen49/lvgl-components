@@ -117,78 +117,41 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named basic_example
+# Target rules for targets named simple_example
 
 # Build rule for target.
-basic_example: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 basic_example
-.PHONY : basic_example
+simple_example: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 simple_example
+.PHONY : simple_example
 
 # fast build rule for target.
-basic_example/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/basic_example.dir/build.make CMakeFiles/basic_example.dir/build
-.PHONY : basic_example/fast
+simple_example/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_example.dir/build.make CMakeFiles/simple_example.dir/build
+.PHONY : simple_example/fast
 
-#=============================================================================
-# Target rules for targets named threading_example
-
-# Build rule for target.
-threading_example: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 threading_example
-.PHONY : threading_example
-
-# fast build rule for target.
-threading_example/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/threading_example.dir/build.make CMakeFiles/threading_example.dir/build
-.PHONY : threading_example/fast
-
-examples/basic_example.o: examples/basic_example.cpp.o
-.PHONY : examples/basic_example.o
+examples/simple_example.o: examples/simple_example.cpp.o
+.PHONY : examples/simple_example.o
 
 # target to build an object file
-examples/basic_example.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/basic_example.dir/build.make CMakeFiles/basic_example.dir/examples/basic_example.cpp.o
-.PHONY : examples/basic_example.cpp.o
+examples/simple_example.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_example.dir/build.make CMakeFiles/simple_example.dir/examples/simple_example.cpp.o
+.PHONY : examples/simple_example.cpp.o
 
-examples/basic_example.i: examples/basic_example.cpp.i
-.PHONY : examples/basic_example.i
-
-# target to preprocess a source file
-examples/basic_example.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/basic_example.dir/build.make CMakeFiles/basic_example.dir/examples/basic_example.cpp.i
-.PHONY : examples/basic_example.cpp.i
-
-examples/basic_example.s: examples/basic_example.cpp.s
-.PHONY : examples/basic_example.s
-
-# target to generate assembly for a file
-examples/basic_example.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/basic_example.dir/build.make CMakeFiles/basic_example.dir/examples/basic_example.cpp.s
-.PHONY : examples/basic_example.cpp.s
-
-examples/threading_example.o: examples/threading_example.cpp.o
-.PHONY : examples/threading_example.o
-
-# target to build an object file
-examples/threading_example.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/threading_example.dir/build.make CMakeFiles/threading_example.dir/examples/threading_example.cpp.o
-.PHONY : examples/threading_example.cpp.o
-
-examples/threading_example.i: examples/threading_example.cpp.i
-.PHONY : examples/threading_example.i
+examples/simple_example.i: examples/simple_example.cpp.i
+.PHONY : examples/simple_example.i
 
 # target to preprocess a source file
-examples/threading_example.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/threading_example.dir/build.make CMakeFiles/threading_example.dir/examples/threading_example.cpp.i
-.PHONY : examples/threading_example.cpp.i
+examples/simple_example.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_example.dir/build.make CMakeFiles/simple_example.dir/examples/simple_example.cpp.i
+.PHONY : examples/simple_example.cpp.i
 
-examples/threading_example.s: examples/threading_example.cpp.s
-.PHONY : examples/threading_example.s
+examples/simple_example.s: examples/simple_example.cpp.s
+.PHONY : examples/simple_example.s
 
 # target to generate assembly for a file
-examples/threading_example.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/threading_example.dir/build.make CMakeFiles/threading_example.dir/examples/threading_example.cpp.s
-.PHONY : examples/threading_example.cpp.s
+examples/simple_example.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simple_example.dir/build.make CMakeFiles/simple_example.dir/examples/simple_example.cpp.s
+.PHONY : examples/simple_example.cpp.s
 
 # Help Target
 help:
@@ -198,14 +161,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... basic_example"
-	@echo "... threading_example"
-	@echo "... examples/basic_example.o"
-	@echo "... examples/basic_example.i"
-	@echo "... examples/basic_example.s"
-	@echo "... examples/threading_example.o"
-	@echo "... examples/threading_example.i"
-	@echo "... examples/threading_example.s"
+	@echo "... simple_example"
+	@echo "... examples/simple_example.o"
+	@echo "... examples/simple_example.i"
+	@echo "... examples/simple_example.s"
 .PHONY : help
 
 

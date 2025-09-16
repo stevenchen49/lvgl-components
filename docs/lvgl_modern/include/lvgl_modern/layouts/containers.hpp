@@ -23,7 +23,9 @@ public:
 template<typename T>
 class WidgetWrapper : public WidgetInterface {
 public:
-    explicit WidgetWrapper(T widget) : widget_(std::move(widget)) {}
+    // 支持通用引用
+    template<typename U>
+    explicit WidgetWrapper(U&& widget) : widget_(std::forward<U>(widget)) {}
     
     void createAndAdd(lv_obj_t* parent) override {
         widget_.createAndAdd(parent);
@@ -45,7 +47,7 @@ private:
 template<typename Derived>
 class ContainerBase : public core::WidgetBase<Derived> {
 public:
-    // 添加子控件 - 使用类型擦除
+    // 添加子控件 - 使用完美转发
     template<typename Child>
     auto& add(Child&& child) {
         children_.emplace_back(std::make_unique<WidgetWrapper<std::decay_t<Child>>>(
@@ -180,12 +182,6 @@ protected:
 // 垂直布局容器
 class VBox : public ContainerBase<VBox> {
 public:
-    // 支持初始化列表构造 - 简化约束
-    template<typename... Children>
-    VBox(Children&&... children) {
-        (add(std::forward<Children>(children)), ...);
-    }
-    
     VBox() = default;
     
     lv_obj_t* createImpl(lv_obj_t* parent) override {
@@ -194,23 +190,11 @@ public:
         std::cout << "[VBox] Created vertical container" << std::endl;
         return container;
     }
-    
-    // 静态工厂方法
-    template<typename... Children>
-    static auto create(Children&&... children) {
-        return VBox(std::forward<Children>(children)...);
-    }
 };
 
 // 水平布局容器
 class HBox : public ContainerBase<HBox> {
 public:
-    // 支持初始化列表构造 - 简化约束
-    template<typename... Children>
-    HBox(Children&&... children) {
-        (add(std::forward<Children>(children)), ...);
-    }
-    
     HBox() = default;
     
     lv_obj_t* createImpl(lv_obj_t* parent) override {
@@ -219,12 +203,6 @@ public:
         std::cout << "[HBox] Created horizontal container" << std::endl;
         return container;
     }
-    
-    // 静态工厂方法
-    template<typename... Children>
-    static auto create(Children&&... children) {
-        return HBox(std::forward<Children>(children)...);
-    }
 };
 
 // 网格布局容器
@@ -232,12 +210,6 @@ class Grid : public ContainerBase<Grid> {
 public:
     Grid() = default;
     Grid(int columns, int rows) : columns_(columns), rows_(rows) {}
-    
-    template<typename... Children>
-    Grid(int columns, int rows, Children&&... children) 
-        : columns_(columns), rows_(rows) {
-        (add(std::forward<Children>(children)), ...);
-    }
     
     lv_obj_t* createImpl(lv_obj_t* parent) override {
         auto* container = lv_obj_create(parent);
@@ -252,12 +224,6 @@ public:
         return self();
     }
     
-    // 静态工厂方法
-    template<typename... Children>
-    static auto create(int columns, int rows, Children&&... children) {
-        return Grid(columns, rows, std::forward<Children>(children)...);
-    }
-    
 private:
     int columns_ = 1;
     int rows_ = 1;
@@ -267,11 +233,6 @@ private:
 class ScrollView : public ContainerBase<ScrollView> {
 public:
     ScrollView() = default;
-    
-    template<typename... Children>
-    ScrollView(Children&&... children) {
-        (add(std::forward<Children>(children)), ...);
-    }
     
     lv_obj_t* createImpl(lv_obj_t* parent) override {
         auto* container = lv_obj_create(parent);
@@ -290,31 +251,9 @@ public:
         return self();
     }
     
-    // 静态工厂方法
-    template<typename... Children>
-    static auto create(Children&&... children) {
-        return ScrollView(std::forward<Children>(children)...);
-    }
-    
 private:
     bool scroll_horizontal_ = false;
     bool scroll_vertical_ = true;
 };
-
-// 便利的工厂函数
-template<typename... Children>
-auto createVBox(Children&&... children) {
-    return VBox(std::forward<Children>(children)...);
-}
-
-template<typename... Children>
-auto createHBox(Children&&... children) {
-    return HBox(std::forward<Children>(children)...);
-}
-
-template<typename... Children>
-auto createGrid(int columns, int rows, Children&&... children) {
-    return Grid(columns, rows, std::forward<Children>(children)...);
-}
 
 } // namespace lvgl_modern::layouts

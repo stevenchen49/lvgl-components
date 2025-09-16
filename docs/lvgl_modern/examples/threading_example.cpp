@@ -27,104 +27,106 @@ int main() {
     
     std::cout << "\n--- Creating Thread-Safe UI ---" << std::endl;
     
-    // 声明式UI构建
-    VBox {
-        Label { "Multi-Threading Demo" }
-            .fontSize(20)
-            .color(Color::Green),
+    // 声明式UI构建 - 使用移动语义
+    auto layout = VBox();
+    
+    layout.add(Label("Multi-Threading Demo")
+        .fontSize(20)
+        .color(Color::Green));
+    
+    layout.add(Label("Status: Ready")
+        .withProxy(statusLabel)
+        .bindText(status.map([](const std::string& s) { 
+            return "Status: " + s; 
+        })));
+    
+    layout.add(Label("Progress: 0%")
+        .withProxy(progressLabel)
+        .bindText(progress.map([](int p) { 
+            return "Progress: " + std::to_string(p) + "%"; 
+        })));
+    
+    layout.add(Slider(0, 100, 0)
+        .withProxy(progressBar)
+        .bindValue(progress));
+    
+    layout.add(Label("Active Workers: 0")
+        .withProxy(workerLabel)
+        .bindText(workerCount.map([](int count) { 
+            return "Active Workers: " + std::to_string(count); 
+        })));
+    
+    auto hbox = HBox();
+    hbox.add(Button("Start Workers")
+        .withProxy(startBtn)
+        .onClick([&]() {
+            std::cout << "[Event] Starting worker threads..." << std::endl;
+            status = "Working";
+            progress = 0;
             
-        Label { "Status: Ready" }
-            .withProxy(statusLabel)
-            .bindText(status.map([](const std::string& s) { 
-                return "Status: " + s; 
-            })),
+            // 启动多个工作线程
+            static std::vector<std::thread> workers;
+            workers.clear();
             
-        Label { "Progress: 0%" }
-            .withProxy(progressLabel)
-            .bindText(progress.map([](int p) { 
-                return "Progress: " + std::to_string(p) + "%"; 
-            })),
-            
-        Slider { 0, 100, 0 }
-            .withProxy(progressBar)
-            .bindValue(progress),
-            
-        Label { "Active Workers: 0" }
-            .withProxy(workerLabel)
-            .bindText(workerCount.map([](int count) { 
-                return "Active Workers: " + std::to_string(count); 
-            })),
-            
-        HBox {
-            Button { "Start Workers" }
-                .withProxy(startBtn)
-                .onClick([&]() {
-                    std::cout << "[Event] Starting worker threads..." << std::endl;
-                    status = "Working";
-                    progress = 0;
+            for (int i = 0; i < 3; ++i) {
+                workers.emplace_back([&, i]() {
+                    // 线程安全地增加工作线程计数
+                    ThreadSafe::post([&]() {
+                        workerCount = workerCount.get() + 1;
+                    });
                     
-                    // 启动多个工作线程
-                    static std::vector<std::thread> workers;
-                    workers.clear();
+                    std::random_device rd;
+                    std::mt19937 gen(rd());
+                    std::uniform_int_distribution<> dis(100, 500);
                     
-                    for (int i = 0; i < 3; ++i) {
-                        workers.emplace_back([&, i]() {
-                            // 线程安全地增加工作线程计数
-                            ThreadSafe::post([&]() {
-                                workerCount = workerCount.get() + 1;
-                            });
+                    for (int step = 0; step < 10; ++step) {
+                        // 模拟工作
+                        std::this_thread::sleep_for(std::chrono::milliseconds(dis(gen)));
+                        
+                        // 线程安全地更新UI
+                        ThreadSafe::post([&, i]() {
+                            int current_progress = progress.get();
+                            progress = std::min(100, current_progress + 3);
                             
-                            std::random_device rd;
-                            std::mt19937 gen(rd());
-                            std::uniform_int_distribution<> dis(100, 500);
+                            std::cout << "[Worker " << i << "] Progress update: " 
+                                      << progress.get() << "%" << std::endl;
                             
-                            for (int step = 0; step < 10; ++step) {
-                                // 模拟工作
-                                std::this_thread::sleep_for(std::chrono::milliseconds(dis(gen)));
-                                
-                                // 线程安全地更新UI
-                                ThreadSafe::post([&, i, step]() {
-                                    int current_progress = progress.get();
-                                    progress = std::min(100, current_progress + 3);
-                                    
-                                    std::cout << "[Worker " << i << "] Progress update: " 
-                                              << progress.get() << "%" << std::endl;
-                                    
-                                    if (progress.get() >= 100) {
-                                        status = "Completed";
-                                    }
-                                });
+                            if (progress.get() >= 100) {
+                                status = "Completed";
                             }
-                            
-                            // 线程安全地减少工作线程计数
-                            ThreadSafe::post([&]() {
-                                workerCount = workerCount.get() - 1;
-                                std::cout << "[Worker] Thread finished" << std::endl;
-                            });
                         });
                     }
                     
-                    // 分离线程让它们在后台运行
-                    for (auto& worker : workers) {
-                        worker.detach();
-                    }
-                }),
-                
-            Button { "Reset" }
-                .withProxy(stopBtn)
-                .onClick([&]() {
-                    std::cout << "[Event] Resetting..." << std::endl;
-                    
-                    // 线程安全地重置状态
+                    // 线程安全地减少工作线程计数
                     ThreadSafe::post([&]() {
-                        status = "Ready";
-                        progress = 0;
-                        workerCount = 0;
+                        workerCount = workerCount.get() - 1;
+                        std::cout << "[Worker] Thread finished" << std::endl;
                     });
-                })
-        }.spacing(10).center()
-        
-    }.padding(20).fitTo(screen());
+                });
+            }
+            
+            // 分离线程让它们在后台运行
+            for (auto& worker : workers) {
+                worker.detach();
+            }
+        }));
+    
+    hbox.add(Button("Reset")
+        .withProxy(stopBtn)
+        .onClick([&]() {
+            std::cout << "[Event] Resetting..." << std::endl;
+            
+            // 线程安全地重置状态
+            ThreadSafe::post([&]() {
+                status = "Ready";
+                progress = 0;
+                workerCount = 0;
+            });
+        }));
+    
+    layout.add(std::move(hbox).spacing(10).center());
+    
+    std::move(layout).padding(20).fitTo(screen());
     
     std::cout << "\n--- UI Created Successfully ---" << std::endl;
     

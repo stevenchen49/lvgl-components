@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(NOT MSVC)
     add_compile_options(-Wall -Wextra -Wpedantic)
     # 禁用一些过于严格的警告
-    add_compile_options(-Wno-unused-parameter -Wno-unused-variable)
+    add_compile_options(-Wno-unused-parameter -Wno-unused-variable -Wno-unused-lambda-capture)
 endif()
 
 # 包含目录
@@ -35,16 +35,12 @@ target_link_libraries(lvgl_modern INTERFACE Threads::Threads)
 option(LVGL_MODERN_BUILD_EXAMPLES "Build example programs" ON)
 
 if(LVGL_MODERN_BUILD_EXAMPLES)
-    # 基础示例
-    add_executable(basic_example examples/basic_example.cpp)
-    target_link_libraries(basic_example lvgl_modern)
-    
-    # 线程安全示例
-    add_executable(threading_example examples/threading_example.cpp)
-    target_link_libraries(threading_example lvgl_modern)
+    # 简化示例
+    add_executable(simple_example examples/simple_example.cpp)
+    target_link_libraries(simple_example lvgl_modern)
     
     # 设置输出目录
-    set_target_properties(basic_example threading_example PROPERTIES
+    set_target_properties(simple_example PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
 endif()

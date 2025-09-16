@@ -1,4 +1,3 @@
-/Users/chenxiaodong/workspace/wxui/lvgl_modern/build/CMakeFiles/basic_example.dir
-/Users/chenxiaodong/workspace/wxui/lvgl_modern/build/CMakeFiles/threading_example.dir
+/Users/chenxiaodong/workspace/wxui/lvgl_modern/build/CMakeFiles/simple_example.dir
 /Users/chenxiaodong/workspace/wxui/lvgl_modern/build/CMakeFiles/edit_cache.dir
 /Users/chenxiaodong/workspace/wxui/lvgl_modern/build/CMakeFiles/rebuild_cache.dir
