@@ -1,0 +1,3 @@
+/Users/chenxiaodong/workspace/wxui/explore/build/CMakeFiles/wxui_explorer.dir
+/Users/chenxiaodong/workspace/wxui/explore/build/CMakeFiles/edit_cache.dir
+/Users/chenxiaodong/workspace/wxui/explore/build/CMakeFiles/rebuild_cache.dir
